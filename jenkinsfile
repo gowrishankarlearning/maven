@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the current branch
+                    checkout scm
+                }
+            }
+        }
+        stage('Print Branch Name') {
+            steps {
+                script {
+                    echo "Building branch: ${env.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'dev') {
+                        echo "Running build for the dev branch"
+                        // Add your dev branch-specific build steps here
+                    } else if (env.BRANCH_NAME == 'staging') {
+                        echo "Running build for the staging branch"
+                        // Add your staging branch-specific build steps here
+                    } else {
+                        echo "Running build for the ${env.BRANCH_NAME} branch"
+                        // Add your other branches-specific build steps here
+                    }
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging') {
+                        echo "Running tests for ${env.BRANCH_NAME} branch"
+                        // Add your test steps here
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Finished building branch: ${env.BRANCH_NAME}"
+        }
+        success {
+            echo "Build succeeded for branch: ${env.BRANCH_NAME}"
+        }
+        failure {
+            echo "Build failed for branch: ${env.BRANCH_NAME}"
+        }
+    }
+}
